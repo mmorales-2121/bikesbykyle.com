@@ -84,6 +84,7 @@ Back up the disk: it holds every booking and customer account. Render's Starter 
 When a booking is confirmed (paid online, or booked with pay at pickup), the site sends:
 - **the customer** a confirmation: service, date and time, payment (paid or due at pickup, with tip), a link to their booking status page, and an "Add to Google Calendar" link. Replies go to `ADMIN_EMAIL`.
 - **the admins** a "New booking" email: service and length, date and time, the customer's name, email, phone and notes, and payment. Replies go to the customer. It goes to every admin account, or to the addresses in `NOTIFY_EMAILS` (comma separated) if you set it.
+- **the customer**, whenever Kyle posts an update on a booking in the dashboard: the new status (for example "Your bike is ready for pickup"), Kyle's note, and a link to their booking page. Untick **Email customer** next to **Post update** to post without emailing.
 
 Until email is set up, the site writes these emails to the Render log instead and bookings work as normal.
 

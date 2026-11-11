@@ -3,14 +3,7 @@ import { db } from "./db";
 import { createEvent } from "./google";
 import { sendBookingEmails } from "./notifications";
 
-export const STATUS_LABELS: Record<string, string> = {
-  PENDING_PAYMENT: "Awaiting payment",
-  CONFIRMED: "Confirmed",
-  IN_PROGRESS: "In progress",
-  READY_FOR_PICKUP: "Ready for pickup",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
-};
+export { STATUS_LABELS } from "./status";
 
 /** Called once an online payment is done (webhook or success page), or right away for pay-at-pickup bookings. */
 export async function confirmBooking(bookingId: string, opts: { paid: boolean } = { paid: true }) {

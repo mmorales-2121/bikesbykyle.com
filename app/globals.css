@@ -71,3 +71,4 @@ h1 em { color:var(--accent); }
 .hbar { display:flex; align-items:center; gap:8px; } .hbar div { height:10px; background:var(--accent); border-radius:0 4px 4px 0; min-width:2px; } .hbar span { font-variant-numeric:tabular-nums; }
 td, th { font-variant-numeric:tabular-nums; }
 .paybox { margin-top:10px; padding:10px 12px; border:1px dashed var(--line); border-radius:8px; font-size:14px; }
+.notify { display:flex; align-items:center; gap:6px; margin:0; font-weight:500; font-size:14px; color:var(--muted); white-space:nowrap; } .notify input { width:auto; }

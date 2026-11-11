@@ -2,6 +2,7 @@ import { business, formatPrice, getService } from "@/config/business";
 import { db } from "./db";
 import { sendEmail } from "./email";
 import { formatWhen } from "./time";
+import { STATUS_LABELS } from "./status";
 
 type Booking = {
   id: string; accessToken: string; serviceId: string; customerName: string; customerEmail: string; customerPhone: string | null;
@@ -93,4 +94,37 @@ export async function sendBookingEmails(bookingId: string) {
     adminRecipients().then((to) => sendEmail(adminNewBookingEmail(b, to))).catch((e) => console.error("Admin booking email failed", bookingId, e)),
   ];
   await Promise.all(jobs);
+}
+
+const STATUS_HEADLINES: Record<string, string> = {
+  CONFIRMED: "Your appointment is confirmed",
+  IN_PROGRESS: "We're working on your bike",
+  READY_FOR_PICKUP: "Your bike is ready for pickup",
+  COMPLETED: "Your service is complete",
+  CANCELLED: "Your appointment was cancelled",
+};
+
+export function customerStatusEmail(b: Booking, status: string, message: string | null) {
+  const service = getService(b.serviceId);
+  const name = service?.name ?? "your service";
+  const statusUrl = `${siteUrl()}/booking/${b.id}?t=${b.accessToken}`;
+  const label = STATUS_LABELS[status] ?? status;
+  const headline = STATUS_HEADLINES[status] ?? `Update on your ${name}`;
+  const intro = message ? `Kyle added a note about your ${name}:` : `There's an update on your ${name}.`;
+  const rows: [string, string][] = [
+    ...(message ? [["Note", message] as [string, string]] : []),
+    ["Status", label],
+    ["Service", name],
+    ["Appointment", formatWhen(b.start, business.timeZone)],
+    ...(status === "READY_FOR_PICKUP" && !b.paidAt ? [["Payment", paymentLine(b)] as [string, string]] : []),
+  ];
+  const { html, text } = layout(headline, intro, rows, { href: statusUrl, label: "View your booking" }, "Questions? Just reply to this email.");
+  return { to: b.customerEmail, subject: `${label}: ${name}${message ? ` - ${message.slice(0, 60)}${message.length > 60 ? "…" : ""}` : ""}`, html, text, replyTo: process.env.ADMIN_EMAIL || undefined };
+}
+
+/** Emails the customer when the shop posts a status change or note. Failures are logged, never thrown. */
+export async function sendStatusUpdateEmail(bookingId: string, status: string, message: string | null) {
+  const b = await db.booking.findUnique({ where: { id: bookingId } });
+  if (!b) return;
+  await sendEmail(customerStatusEmail(b, status, message)).catch((e) => console.error("Status update email failed", bookingId, e));
 }

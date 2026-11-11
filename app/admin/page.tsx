@@ -8,6 +8,7 @@ import { ADMIN_COOKIE, requireAdmin } from "@/lib/admin";
 import { STATUS_LABELS } from "@/lib/booking";
 import { db } from "@/lib/db";
 import { deleteEvent } from "@/lib/google";
+import { sendStatusUpdateEmail } from "@/lib/notifications";
 import { formatWhen } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ async function postStatus(form: FormData) {
   if (!OWNER_STATUSES.includes(status)) return;
   const booking = await db.booking.update({ where: { id: bookingId }, data: { status } });
   await db.statusUpdate.create({ data: { bookingId, status, message } });
+  if (form.get("notify") === "on") await sendStatusUpdateEmail(bookingId, status, message);
   if (status === "CANCELLED" && booking.googleEventId) {
     await deleteEvent(booking.googleEventId);
     await db.booking.update({ where: { id: bookingId }, data: { googleEventId: null } });
@@ -52,6 +54,7 @@ export default async function Admin({ searchParams }: { searchParams: { show?: s
     where: { status: { not: "PENDING_PAYMENT" }, ...(showPast ? {} : { end: { gte: new Date(Date.now() - 86400000) } }) },
     orderBy: { start: showPast ? "desc" : "asc" },
     take: 200,
+    include: { _count: { select: { updates: true } } },
   });
   const site = (process.env.SITE_URL || process.env.RENDER_EXTERNAL_URL) ?? "";
 
@@ -80,19 +83,20 @@ export default async function Admin({ searchParams }: { searchParams: { show?: s
             {b.notes && <p style={{ margin: "4px 0", whiteSpace: "pre-wrap" }}>“{b.notes}”</p>}
             <p style={{ margin: "4px 0", fontSize: 14 }}>Customer status page: <a href={`${site}/booking/${b.id}?t=${b.accessToken}`}>{`/booking/${b.id}`}</a></p>
             {!b.paidAt && b.status !== "CANCELLED" && (
-              <form action={markPaid} className="row paybox">
+              <form key={`${b.id}-paid-${b._count.updates}`} action={markPaid} className="row paybox">
                 <input type="hidden" name="bookingId" value={b.id} />
                 <span>Collecting at pickup? Tip received $</span>
                 <input name="tip" type="number" min="0" step="0.01" defaultValue={(b.tipCents / 100).toFixed(2)} aria-label="Tip received in dollars" style={{ width: 90 }} />
                 <button className="btn secondary">Mark paid</button>
               </form>
             )}
-            <form action={postStatus} className="row" style={{ marginTop: 8 }}>
+            <form key={`${b.id}-${b._count.updates}-${b.status}`} action={postStatus} className="row" style={{ marginTop: 8 }}>
               <input type="hidden" name="bookingId" value={b.id} />
               <select name="status" defaultValue={b.status} style={{ width: "auto" }}>
                 {OWNER_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
               </select>
               <input name="message" placeholder="Message to the customer (optional)" style={{ flex: 1, minWidth: 200 }} />
+              <label className="notify"><input type="checkbox" name="notify" defaultChecked /> Email customer</label>
               <button className="btn">Post update</button>
             </form>
           </div>

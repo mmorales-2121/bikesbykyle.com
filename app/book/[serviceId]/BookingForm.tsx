@@ -15,10 +15,13 @@ export default function BookingForm({ saved, serviceId, priceCents, minDate, max
 
   useEffect(() => {
     setSlots(null); setSlot(null); setError("");
+    // Ignore answers for a date the customer has already moved away from.
+    let current = true;
     fetch(`/api/availability?service=${serviceId}&date=${date}`)
       .then((r) => r.json())
-      .then((d) => (d.error ? setError(d.error) : setSlots(d.slots)))
-      .catch(() => setError("Could not load times."));
+      .then((d) => { if (current) (d.error ? setError(d.error) : setSlots(d.slots)); })
+      .catch(() => { if (current) setError("Could not load times."); });
+    return () => { current = false; };
   }, [serviceId, date]);
 
   const fmt = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric", minute: "2-digit" }).format(new Date(iso));
