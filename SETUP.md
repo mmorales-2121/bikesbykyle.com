@@ -79,12 +79,37 @@ Back up the disk: it holds every booking and customer account. Render's Starter 
 - **Payment:** when Stripe confirms payment, the booking becomes Confirmed and is added to your Google Calendar (the customer gets a calendar invite).
 - **Status updates:** after paying, each customer lands on a private booking page (bookmark it). In the dashboard you set the status (Confirmed, In progress, Ready for pickup, Completed, Cancelled) with an optional message, and it shows on that page.
 
+## Booking emails
+
+When a booking is confirmed (paid online, or booked with pay at pickup), the site sends:
+- **the customer** a confirmation: service, date and time, payment (paid or due at pickup, with tip), a link to their booking status page, and an "Add to Google Calendar" link. Replies go to `ADMIN_EMAIL`.
+- **the admins** a "New booking" email: service and length, date and time, the customer's name, email, phone and notes, and payment. Replies go to the customer. It goes to every admin account, or to the addresses in `NOTIFY_EMAILS` (comma separated) if you set it.
+
+Until email is set up, the site writes these emails to the Render log instead and bookings work as normal.
+
+**Option A: Gmail (quickest).** Sends from your Gmail address, up to about 500 emails a day.
+1. Turn on 2-Step Verification for the Google account: myaccount.google.com > **Security**.
+2. Go to myaccount.google.com/apppasswords, create an app password named "Bikes By Kyle website", and copy the 16-letter password.
+3. In Render > **Environment**, set:
+   - `SMTP_HOST` = `smtp.gmail.com`
+   - `SMTP_PORT` = `465`
+   - `SMTP_USER` = the Gmail address
+   - `SMTP_PASS` = the app password (no spaces)
+   - `EMAIL_FROM` = `Bikes By Kyle <the Gmail address>`
+
+**Option B: Resend (best once you own bikesbykyle.com).** Emails come from your own domain, such as bookings@bikesbykyle.com, and are less likely to land in spam.
+1. Sign up at resend.com, add your domain and add the DNS records it shows you.
+2. Create an API key and set `RESEND_API_KEY` in Render.
+3. Set `EMAIL_FROM` = `Bikes By Kyle <bookings@bikesbykyle.com>`. Leave the `SMTP_` values blank.
+
+Render's paid plans allow outgoing email; the free plan blocks SMTP, which is another reason to stay on Starter.
+
 ## Customer accounts
 
 - Customers can create an account at `/account/signup` (name, email, phone, bike details, password) and log in at `/account/login`.
 - Logged-in customers get their details filled in when booking, and their account page (`/account`) lists past bookings with a "Book again" button.
 - Guest bookings made earlier with the same email are linked to the account when it's created.
-- Passwords are stored hashed (scrypt). There's no "forgot password" email yet, because the site doesn't send email; that needs an email service such as Resend or Postmark.
+- Passwords are stored hashed (scrypt). There's no "forgot password" email yet.
 
 ## Owner dashboard
 

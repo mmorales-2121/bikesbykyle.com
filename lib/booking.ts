@@ -1,6 +1,7 @@
 import { getService } from "@/config/business";
 import { db } from "./db";
 import { createEvent } from "./google";
+import { sendBookingEmails } from "./notifications";
 
 export const STATUS_LABELS: Record<string, string> = {
   PENDING_PAYMENT: "Awaiting payment",
@@ -32,4 +33,5 @@ export async function confirmBooking(bookingId: string, opts: { paid: boolean } 
   } catch (err) {
     console.error("Google Calendar event failed for booking", bookingId, err);
   }
+  await sendBookingEmails(bookingId);
 }
