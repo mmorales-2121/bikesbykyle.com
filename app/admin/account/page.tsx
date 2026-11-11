@@ -5,6 +5,8 @@ import { business } from "@/config/business";
 import { requireAdmin } from "@/lib/admin";
 import { hashPassword, normalizeEmail, verifyPassword } from "@/lib/customer";
 import { db } from "@/lib/db";
+import { emailSetup, explainEmailError, sendEmail } from "@/lib/email";
+import { adminRecipients, layout } from "@/lib/notifications";
 import { formatInZone } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
@@ -38,13 +40,29 @@ async function removeAdmin(form: FormData) {
   revalidatePath("/admin/account");
 }
 
+async function sendTestEmail(form: FormData) {
+  "use server";
+  const me = await requireAdmin();
+  const to = normalizeEmail(String(form.get("to") ?? "")) || me.email;
+  if (!/^\S+@\S+\.\S+$/.test(to)) redirect("/admin/account?test=bad#email");
+  const { html, text } = layout("Test email", "If you can read this, the website can send email. Booking confirmations and status updates will go out the same way.", [["Sent to", to], ["Sent at", new Date().toLocaleString("en-US", { timeZone: business.timeZone })]]);
+  const ok = await sendEmail({ to, subject: "Bikes By Kyle test email", html, text }).then(() => emailSetup().provider !== "none", () => false);
+  redirect(`/admin/account?test=${ok ? "ok" : "fail"}#email`);
+}
+
 const PW: Record<string, [string, string]> = { ok: ["ok", "Password changed."], wrong: ["error", "Your current password isn't right."], short: ["error", "Use a new password of at least 10 characters."] };
 const ADD: Record<string, [string, string]> = { ok: ["ok", "Admin added. Send them their password privately."], invalid: ["error", "Enter a valid email and a password of at least 10 characters."], taken: ["error", "That email is already an admin."] };
 
-export default async function AdminAccount(props: { searchParams: Promise<{ pw?: string; add?: string }> }) {
+export default async function AdminAccount(props: { searchParams: Promise<{ pw?: string; add?: string; test?: string }> }) {
   const searchParams = await props.searchParams;
   const me = await requireAdmin();
   const admins = await db.admin.findMany({ orderBy: { createdAt: "asc" } });
+  const setup = emailSetup();
+  const alertsTo = await adminRecipients();
+  const log = await db.emailLog.findMany({ orderBy: { createdAt: "desc" }, take: 15 });
+  const lastFail = log.find((l) => !l.ok);
+  const when = (d: Date) => formatInZone(d, business.timeZone, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  const masked = setup.user.replace(/^(.).*(@.*)$/, "$1•••$2");
   const pw = searchParams.pw && PW[searchParams.pw], add = searchParams.add && ADD[searchParams.add];
   return (
     <>
@@ -85,6 +103,49 @@ export default async function AdminAccount(props: { searchParams: Promise<{ pw?:
         {add && <p className={add[0]}>{add[1]}</p>}
         <p><button className="btn">Add admin</button></p>
       </form>
+
+      <h2 id="email">Email</h2>
+      <div className="card" style={{ maxWidth: 720 }}>
+        <table>
+          <tbody>
+            <tr><td className="muted" style={{ width: 170 }}>Sending through</td><td>{setup.provider === "smtp" ? `${setup.host}:${setup.port} as ${masked || "(no SMTP_USER)"}` : setup.provider === "resend" ? "Resend" : <strong className="error">Not set up</strong>}</td></tr>
+            <tr><td className="muted">From</td><td>{setup.from}</td></tr>
+            <tr><td className="muted">New-booking alerts go to</td><td>{alertsTo.length ? alertsTo.join(", ") : <span className="error">Nobody (add an admin or set NOTIFY_EMAILS)</span>}</td></tr>
+          </tbody>
+        </table>
+        {setup.problems.map((p) => <p key={p} className="error">{p}</p>)}
+        {searchParams.test === "ok" && <p className="ok">Test email sent. Check the inbox (and spam folder).</p>}
+        {searchParams.test === "bad" && <p className="error">Enter a valid email address.</p>}
+        {searchParams.test === "fail" && (
+          <p className="error">
+            The test email didn't go out{lastFail?.error ? `: ${lastFail.error}` : "."}
+            {lastFail?.error && explainEmailError(lastFail.error) && <><br /><strong>Fix:</strong> {explainEmailError(lastFail.error)}</>}
+          </p>
+        )}
+        <form action={sendTestEmail} className="row" style={{ marginTop: 12 }}>
+          <input name="to" type="email" placeholder={me.email} style={{ flex: 1, minWidth: 200 }} aria-label="Send test email to" />
+          <button className="btn">Send test email</button>
+        </form>
+      </div>
+
+      <h3 style={{ marginTop: 20 }}>Recent emails</h3>
+      {log.length === 0 ? (
+        <p className="muted">No emails yet. Bookings, status updates and test emails will show up here.</p>
+      ) : (
+        <table>
+          <thead><tr><th>When</th><th>To</th><th>Subject</th><th>Result</th></tr></thead>
+          <tbody>
+            {log.map((l) => (
+              <tr key={l.id}>
+                <td className="muted" style={{ whiteSpace: "nowrap" }}>{when(l.createdAt)}</td>
+                <td>{l.to}</td>
+                <td>{l.subject}</td>
+                <td>{l.ok ? <span className="badge">Sent</span> : <span className="error">Failed: {l.error}{explainEmailError(l.error ?? "") && <><br /><span className="muted">{explainEmailError(l.error ?? "")}</span></>}</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </>
   );
 }

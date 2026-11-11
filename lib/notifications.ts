@@ -77,7 +77,7 @@ export function adminNewBookingEmail(b: Booking, to: string[]) {
 }
 
 /** Who gets "new booking" emails: NOTIFY_EMAILS if set, otherwise every admin account. */
-async function adminRecipients() {
+export async function adminRecipients() {
   const list = (process.env.NOTIFY_EMAILS || "").split(",").map((e) => e.trim()).filter(Boolean);
   if (list.length) return list;
   const admins = (await db.admin.findMany({ select: { email: true } })).map((a) => a.email);

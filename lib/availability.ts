@@ -1,6 +1,7 @@
 import { business, Service } from "@/config/business";
 import { db } from "./db";
 import { getBusy } from "./google";
+import { isAway } from "./timeoff";
 import { todayIn, weekday, zonedToUtc } from "./time";
 
 // Unpaid bookings hold their slot for this long (the payment page shows a countdown).
@@ -32,7 +33,7 @@ async function blockedRanges(from: Date, to: Date) {
 
 /** Open start times (UTC) for a service on a given day in the business time zone. */
 export async function getSlots(service: Service, day: string) {
-  if (!isBookableDay(day)) return [];
+  if (!isBookableDay(day) || (await isAway(day))) return [];
   const hours = business.hours[weekday(day)];
   const open = zonedToUtc(day, hours.open, business.timeZone);
   const close = zonedToUtc(day, hours.close, business.timeZone);

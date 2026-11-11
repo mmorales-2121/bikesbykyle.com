@@ -7,6 +7,7 @@ type Saved = { name: string; email: string; phone: string; bikeNotes: string } |
 export default function BookingForm({ saved, serviceId, priceCents, minDate, maxDate, timeZone }: { saved: Saved; serviceId: string; priceCents: number; minDate: string; maxDate: string; timeZone: string }) {
   const [date, setDate] = useState(minDate);
   const [slots, setSlots] = useState<string[] | null>(null);
+  const [closed, setClosed] = useState(false);
   const [slot, setSlot] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -14,12 +15,12 @@ export default function BookingForm({ saved, serviceId, priceCents, minDate, max
   const [tip, setTip] = useState(0);
 
   useEffect(() => {
-    setSlots(null); setSlot(null); setError("");
+    setSlots(null); setSlot(null); setError(""); setClosed(false);
     // Ignore answers for a date the customer has already moved away from.
     let current = true;
     fetch(`/api/availability?service=${serviceId}&date=${date}`)
       .then((r) => r.json())
-      .then((d) => { if (current) (d.error ? setError(d.error) : setSlots(d.slots)); })
+      .then((d) => { if (current) { if (d.error) setError(d.error); else { setSlots(d.slots); setClosed(Boolean(d.closed)); } } })
       .catch(() => { if (current) setError("Could not load times."); });
     return () => { current = false; };
   }, [serviceId, date]);
@@ -48,7 +49,7 @@ export default function BookingForm({ saved, serviceId, priceCents, minDate, max
       <input id="date" type="date" value={date} min={minDate} max={maxDate} onChange={(e) => setDate(e.target.value)} />
       <label>Time</label>
       {slots === null && !error && <p className="muted">Loading times…</p>}
-      {slots?.length === 0 && <p className="muted">No open times this day. Try another date.</p>}
+      {slots?.length === 0 && <p className="muted">{closed ? "The shop is closed this day. Please pick another date." : "No open times this day. Try another date."}</p>}
       <div className="slots">
         {slots?.map((s) => (
           <button type="button" key={s} className={`slot ${slot === s ? "on" : ""}`} onClick={() => setSlot(s)}>{fmt(s)}</button>

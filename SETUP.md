@@ -105,6 +105,18 @@ Until email is set up, the site writes these emails to the Render log instead an
 
 Render's paid plans allow outgoing email; the free plan blocks SMTP, which is another reason to stay on Starter.
 
+### Checking that email works
+
+Owner dashboard > **Account** > **Email** shows which email service the site is using, flags missing or wrong settings, and has a **Send test email** button. **Recent emails** lists every email the site tried to send (bookings, status updates, sign-ups, tests) and, for failures, the error and how to fix it. If emails are failing, the **Bookings** tab shows a red warning.
+
+Common problems:
+- *Not set up:* none of `SMTP_HOST` or `RESEND_API_KEY` is set in Render > Environment.
+- *"Username and Password not accepted":* `SMTP_PASS` must be a 16-letter Gmail app password, not the normal Gmail password, and `SMTP_USER` must be the full Gmail address.
+- *Timeouts or "couldn't connect":* the Render service is on the free plan, which blocks email ports. Switch it to Starter, or use Resend.
+- *Resend only reaches you:* Resend's test sender (`onboarding@resend.dev`) only delivers to your own Resend login email. Verify your domain in Resend and set `EMAIL_FROM` to an address at it.
+
+Booking emails go out right after the booking is saved, so a slow mail server never holds up the customer.
+
 ## Customer accounts
 
 - Customers can create an account at `/account/signup` (name, email, phone, bike details, password) and log in at `/account/login`.
@@ -126,6 +138,10 @@ Log in at `/admin` with an admin email and password. Only admins can see these p
 - **Bookings:** upcoming bookings, status updates, Mark paid.
 - **Metrics:** revenue collected (including tips), revenue after estimated Stripe fees, bookings, average ticket, money still due at pickup, a monthly revenue chart for the last 12 months, and the most-booked services. Switch between 30 days, 90 days, 12 months and all time.
 - **Customers:** everyone who has booked (account holders and guests): contact info, saved bike details, number of bookings, total spent and last visit. Search, or download as CSV.
+
+## Time off
+
+Owner dashboard > **Time off** shows a month calendar. Tap a day to mark yourself away; tap it again to reopen it. Use **Block several days** for a trip, with an optional note only admins see. Customers can't book away days (the booking page says the shop is closed that day). Bookings already made on a day you mark away stay booked; the page lists them so you can contact those customers or cancel from the Bookings tab.
 
 ## Security settings
 

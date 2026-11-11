@@ -9,6 +9,7 @@ import { STATUS_LABELS } from "@/lib/booking";
 import { db } from "@/lib/db";
 import { deleteEvent } from "@/lib/google";
 import { sendStatusUpdateEmail } from "@/lib/notifications";
+import { emailSetup } from "@/lib/email";
 import { formatWhen } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
@@ -58,11 +59,19 @@ export default async function Admin(props: { searchParams: Promise<{ show?: stri
     include: { _count: { select: { updates: true } } },
   });
   const site = (process.env.SITE_URL || process.env.RENDER_EXTERNAL_URL) ?? "";
+  // Warn on the main tab when emails aren't going out, so it gets noticed.
+  const lastEmail = await db.emailLog.findFirst({ orderBy: { createdAt: "desc" } });
+  const emailTrouble = emailSetup().problems.length > 0 || (lastEmail && !lastEmail.ok);
 
   return (
     <>
       <div className="row"><h1 style={{ marginRight: "auto" }}>Owner dashboard</h1><form action={logout}><button className="btn secondary">Log out</button></form></div>
       <AdminNav active="/admin" />
+      {emailTrouble && (
+        <p className="card error" style={{ borderColor: "#dc2626" }}>
+          Customer and booking emails aren't going out. <Link href="/admin/account#email">See what's wrong and send a test email</Link>.
+        </p>
+      )}
 
       <p className="muted">
         {showPast ? <Link href="/admin">Show upcoming only</Link> : <Link href="/admin?show=all">Show past bookings too</Link>}

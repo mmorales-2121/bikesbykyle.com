@@ -64,3 +64,24 @@ model StatusUpdate {
   message   String?
   createdAt DateTime @default(now())
 }
+
+// Every email the site tries to send, so the owner can see what went out or why it failed.
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  provider  String
+  ok        Boolean
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Days the shop is closed (Kyle is away). Dates are YYYY-MM-DD in the shop's time zone.
+model TimeOff {
+  id        String   @id @default(cuid())
+  date      String   @unique
+  note      String?
+  createdAt DateTime @default(now())
+}

@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { getService } from "@/config/business";
 import { db } from "./db";
 import { createEvent } from "./google";
@@ -26,5 +27,11 @@ export async function confirmBooking(bookingId: string, opts: { paid: boolean } 
   } catch (err) {
     console.error("Google Calendar event failed for booking", bookingId, err);
   }
-  await sendBookingEmails(bookingId);
+  // Send the emails after the response so a slow mail server never holds up the customer.
+  const send = () => sendBookingEmails(bookingId).catch((e) => console.error("Booking emails failed", bookingId, e));
+  try {
+    after(send);
+  } catch {
+    void send();
+  }
 }
