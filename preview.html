@@ -1,0 +1,252 @@
+<title>Bikes By Kyle</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,700;1,800;1,900&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: race-paddock dark. Bikes By Kyle red logo leads; service list reads like a pit-board price list in bold italic condensed type. Single dark look by choice, matching the brand's Instagram. */
+:root {
+  --bg:#0d0f12; --surface:#171a1f; --fg:#f4f5f7; --muted:#9aa1ab; --line:#2a2f37;
+  --accent:#e0312b; --accent-fg:#ffffff; --accent-soft:#3a1514; --warn-bg:#e0312b; --warn-fg:#ffffff; --blue:#3b5bdb;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Inter",system-ui,-apple-system,sans-serif;
+  color-scheme:dark;
+}
+* { box-sizing:border-box }
+body { background:var(--bg); color:var(--fg); font:15px/1.55 var(--body); }
+.wrap { max-width:860px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+.banner { background:var(--warn-bg); color:var(--warn-fg); font-size:13px; font-weight:500; }
+.banner .wrap { padding-block:8px; }
+header.top { background:var(--surface); border-bottom:1px solid var(--line); }
+header.top .wrap { display:flex; align-items:center; gap:16px; padding-block:14px; }
+.brand { display:flex; align-items:center; gap:12px; margin-right:auto; color:var(--fg); text-decoration:none; }
+.brand svg { width:52px; height:52px; flex:0 0 auto; }
+.brand span { font:italic 800 24px/1 var(--display); text-transform:uppercase; letter-spacing:.02em; }
+.brand small { display:block; font:500 12px/1.3 var(--body); color:var(--muted); text-transform:none; letter-spacing:0; font-style:normal; }
+.brand + .hours { margin-right:4px; }
+#acct-link { padding:8px 12px; font-size:15px; }
+.hours { font-size:13px; color:var(--muted); text-align:right; white-space:nowrap; }
+@media (max-width:560px) { .brand small { display:none; } .hours { display:none; } }
+main .wrap { padding-block:28px 64px; }
+h1,h2,h3 { font-family:var(--display); text-wrap:balance; margin:0; }
+h1 { font-size:46px; line-height:1; font-style:italic; font-weight:900; text-transform:uppercase; letter-spacing:.01em; }
+h1 em { color:var(--accent); font-style:italic; }
+h2 { font-size:22px; font-style:italic; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--fg); margin-top:36px; padding-bottom:6px; border-bottom:3px solid var(--accent); }
+.lede { color:var(--muted); max-width:60ch; margin:8px 0 0; }
+.cats { display:grid; gap:10px; margin-top:24px; }
+.cat { background:var(--surface); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.cat[open] { border-color:var(--accent); }
+.cat summary { list-style:none; display:flex; align-items:center; gap:12px; padding:16px 18px; cursor:pointer; }
+.cat summary::-webkit-details-marker { display:none; }
+.cat summary:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+.cat .ctitle { font:italic 800 24px/1 var(--display); text-transform:uppercase; letter-spacing:.03em; margin-right:auto; }
+.cat .cmeta { color:var(--muted); font-size:13px; white-space:nowrap; }
+.cat .chev { width:22px; height:22px; flex:0 0 auto; border-radius:50%; display:grid; place-items:center; background:var(--bg); color:var(--fg); font-size:12px; transition:transform .15s; }
+.cat[open] .chev { transform:rotate(180deg); background:var(--accent); color:var(--accent-fg); }
+.menu { list-style:none; margin:0; padding:0 8px 8px; }
+.svc { width:100%; display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:4px 16px; align-items:center; padding:12px 10px; border:0; border-top:1px solid var(--line); background:none; color:var(--fg); font:inherit; text-align:left; cursor:pointer; border-radius:4px; }
+.svc:hover { background:var(--bg); } .svc:focus-visible { outline:2px solid var(--accent); }
+.svc .name { font-weight:600; } .svc .desc { color:var(--muted); font-size:14px; }
+.svc .time { color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.svc .price { font:italic 800 22px/1 var(--display); font-variant-numeric:tabular-nums; text-align:right; }
+.svc .go { grid-column:3; font:italic 800 14px/1 var(--display); text-transform:uppercase; color:#ff8a84; text-align:right; letter-spacing:.04em; }
+@media (max-width:560px) { .svc { grid-template-columns:minmax(0,1fr) auto; } .svc .time { grid-column:1; grid-row:2; } .svc .price { grid-column:2; grid-row:1; } .svc .go { grid-column:2; grid-row:2; } .cat .cmeta { display:none; } }
+.btn { display:inline-flex; align-items:center; justify-content:center; background:var(--accent); color:var(--accent-fg); border:0; border-radius:4px; padding:9px 18px; font:italic 800 17px/1 var(--display); text-transform:uppercase; letter-spacing:.04em; cursor:pointer; text-decoration:none; }
+.btn:hover { filter:brightness(1.1); }
+.btn.ghost { background:transparent; color:var(--fg); border:1px solid var(--line); }
+.pill { background:var(--accent-soft); color:#ff8a84; }
+.paygrid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:16px; align-items:start; } .paygrid .panel { margin-top:20px; }
+@media (max-width:640px) { .paygrid { grid-template-columns:1fr; } .paygrid .panel + .panel { margin-top:0; } }
+.grid3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 12px; }
+.ccwrap { position:relative; } .brandtag { position:absolute; right:10px; top:50%; transform:translateY(-50%); font:italic 800 14px var(--display); color:var(--muted); }
+input[readonly] { color:var(--muted); font-variant-numeric:tabular-nums; }
+.note { font-size:13px; color:var(--muted); background:var(--bg); border:1px dashed var(--line); border-radius:6px; padding:8px 10px; margin-top:8px; }
+.secure { font-size:12px; color:var(--muted); margin-top:10px; }
+
+.hero { padding-block:8px 4px; }
+.hero .stars { color:var(--muted); font-size:13px; letter-spacing:.3em; margin-bottom:6px; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.btn:focus-visible, .slot:focus-visible, input:focus-visible, textarea:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.panel { background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:20px; margin-top:20px; }
+.back { background:none; border:0; color:#ff8a84; font:500 14px var(--body); cursor:pointer; padding:0; margin-bottom:12px; }
+.summary { display:flex; flex-wrap:wrap; gap:4px 16px; color:var(--muted); margin-top:6px; }
+.days { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; }
+.day { flex:0 0 auto; width:64px; padding:8px 0; text-align:center; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--fg); cursor:pointer; font:inherit; }
+.day b { display:block; font:italic 800 22px/1.1 var(--display); }
+.day small { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+.day.on { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); } .day.on small { color:var(--accent-fg); }
+.slots { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.slot { border:1px solid var(--line); background:var(--surface); color:var(--fg); border-radius:6px; padding:8px 12px; cursor:pointer; font:500 14px var(--body); font-variant-numeric:tabular-nums; }
+.slot.on { background:var(--accent); color:var(--accent-fg); border-color:var(--accent); }
+.label { display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:16px 0 6px; }
+input, textarea { width:100%; padding:10px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--fg); font:inherit; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; } @media (max-width:560px) { .grid2 { grid-template-columns:1fr; } }
+.err { color:#ff8a84; font-size:14px; }
+.row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:18px; }
+.pay { border:1px dashed var(--line); border-radius:8px; padding:16px; margin-top:16px; }
+.total { display:flex; justify-content:space-between; font-weight:600; font-variant-numeric:tabular-nums; padding:10px 0; border-top:1px solid var(--line); margin-top:10px; }
+.pill { display:inline-block; padding:3px 10px; border-radius:999px; background:var(--accent-soft); color:var(--accent); font-size:13px; font-weight:600; }
+.track { list-style:none; padding:0; margin:16px 0 0; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.track li { font-size:12px; color:var(--muted); padding-top:8px; border-top:4px solid var(--line); }
+.track li.done { color:var(--fg); border-color:var(--accent); font-weight:600; }
+.log { list-style:none; padding:0; margin:12px 0 0; }
+.log li { padding:10px 0; border-bottom:1px solid var(--line); } .log time { color:var(--muted); font-size:13px; display:block; }
+@media (prefers-reduced-motion: no-preference) { .view { animation:in .2s ease-out; } @keyframes in { from { transform:translateY(4px); opacity:.6 } } }
+</style>
+
+<div class="banner"><div class="wrap">Website preview. Booking and payment are simulated here; no card is charged and nothing is added to a calendar. Don't enter real card details.</div></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#" id="home-link"><svg viewBox="0 0 100 100" role="img" aria-label="Bikes By Kyle logo"><circle cx="50" cy="50" r="49" fill="#e0312b"/><g transform="skewX(-14) translate(12 0)"><text x="56" y="44" text-anchor="end" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-style="italic" font-size="11" fill="#fff" letter-spacing=".5">BIKES BY</text><rect x="8" y="47" width="74" height="22" fill="none" stroke="#fff" stroke-width="2.2"/><text x="45" y="66" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="900" font-style="italic" font-size="24" fill="#e0312b" stroke="#fff" stroke-width="1.6" paint-order="stroke" letter-spacing="1">KYLE</text></g></svg><span>Bikes By Kyle<small>Austin's concierge bike service</small></span></a>
+  <div class="hours">Mon–Fri 9am–5pm<br>Sat–Sun 8am–3pm</div>
+  <button class="btn ghost" id="acct-link" type="button">Log in</button>
+</div></header>
+<main><div class="wrap" id="app"></div></main>
+
+<script>
+const SERVICES = [{"id":"safety-check","cat":"Tune-ups","name":"Safety check & lube","desc":"Brake and shifting adjustment, tire check, chain clean and lube.","price":7500,"dur":45},{"id":"pre-race","cat":"Tune-ups","name":"Pre-race check","desc":"Safety check plus a full once-over before your event.","price":8000,"dur":45},{"id":"complete-tune","cat":"Tune-ups","name":"Complete tune-up","desc":"Full adjustment of brakes, gears, wheels, headset and bottom bracket.","price":10000,"dur":90},{"id":"deluxe-road","cat":"Deluxe tune-ups","name":"Deluxe road tune","desc":"Complete tune-up plus drivetrain deep clean and new cables.","price":16000,"dur":180},{"id":"overhaul-rim","cat":"Overhauls","name":"Road / cross, rim brake","desc":"Full teardown, clean, and rebuild.","price":32000,"dur":240},{"id":"overhaul-hydraulic","cat":"Overhauls","name":"Road / cross, hydraulic brake","desc":"Full teardown and rebuild, including brake bleed.","price":37000,"dur":300},{"id":"overhaul-ebike","cat":"Overhauls","name":"E-bike / proprietary","desc":"Full overhaul for e-bikes and bikes with proprietary parts.","price":50000,"dur":420},{"id":"assemble-boxed","cat":"Box & build","name":"Assemble boxed bike","desc":"Build and tune a bike that arrived in a box.","price":12500,"dur":90},{"id":"box-shipping","cat":"Box & build","name":"Box bike for shipping","desc":"Pack your bike safely for shipping or travel.","price":12500,"dur":60},{"id":"assessment","cat":"Repairs","name":"Repair assessment","desc":"Bring it in for a flat, cable, brake or shifting issue. We'll quote the repair before starting.","price":2500,"dur":30}];
+const HOURS = {1:["09:00","17:00"],2:["09:00","17:00"],3:["09:00","17:00"],4:["09:00","17:00"],5:["09:00","17:00"],6:["08:00","15:00"],0:["08:00","15:00"]};
+const app = document.getElementById("app");
+const money = c => "$" + (c/100).toFixed(2);
+const dur = m => m < 120 ? m + " min" : (Math.round(m/30)/2) + " hr";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtTime = mins => { const h = Math.floor(mins/60), m = mins%60; return ((h+11)%12+1) + ":" + String(m).padStart(2,"0") + (h<12?" am":" pm"); };
+const toMin = t => { const [h,m] = t.split(":").map(Number); return h*60+m; };
+let state = { view:"menu" };
+let account = null; // simulated logged-in customer
+const tipOf = () => state.tip || 0;
+function tipHTML(price) {
+  const opts = [0,10,15,20].map(p => ({ p, c: Math.round(price*p/100) }));
+  return '<div class="slots" style="margin-top:0">' + opts.map(o =>
+    '<button type="button" class="slot' + (!state.customTip && tipOf()===o.c ? " on" : "") + '" data-tip="' + o.c + '">' + (o.p ? o.p + '% · ' + money(o.c) : 'No tip') + '</button>').join("") +
+    '<button type="button" class="slot' + (state.customTip ? " on" : "") + '" data-tip="custom">Custom</button></div>' +
+    (state.customTip ? '<input id="tipamt" type="number" min="0" max="500" step="0.01" inputmode="decimal" placeholder="Tip in dollars" style="max-width:220px;margin-top:8px" value="' + (tipOf() ? (tipOf()/100).toFixed(2) : "") + '">' : '');
+}
+function wireTip(rerender) {
+  app.querySelectorAll("[data-tip]").forEach(b => b.onclick = () => { keepForm(); if (b.dataset.tip === "custom") { state.customTip = true; } else { state.customTip = false; state.tip = +b.dataset.tip; } rerender(); });
+  const t = document.getElementById("tipamt");
+  if (t) t.onchange = () => { state.tip = Math.min(50000, Math.max(0, Math.round((+t.value || 0) * 100))); rerender(); };
+}
+
+function days() {
+  const out = [], start = new Date(); start.setHours(0,0,0,0);
+  for (let i = 1; i <= 14; i++) { const d = new Date(start); d.setDate(d.getDate()+i); out.push(d); }
+  return out;
+}
+function slotsFor(day, svc) {
+  const [o,c] = HOURS[day.getDay()].map(toMin), list = [];
+  for (let t = o; t + svc.dur <= c; t += 30) {
+    // Sample data: a few times shown as already booked.
+    const taken = ((day.getDate()*7 + t/30) % 5) === 0;
+    if (!taken) list.push(t);
+  }
+  return list;
+}
+
+function render() {
+  if (state.view === "menu") return renderMenu();
+  if (state.view === "book") return renderBook();
+  if (state.view === "pay") return renderPay();
+  if (state.view === "status") return renderStatus();
+  if (state.view === "login") return renderLogin();
+  if (state.view === "account") return renderAccount();
+}
+
+function renderMenu() {
+  const cats = [...new Set(SERVICES.map(s => s.cat))];
+  app.innerHTML = '<div class="view"><div class="hero"><div class="stars">★ ★ ★ AUSTIN, TX</div><h1>Book your <em>bike service</em></h1></div><p class="lede">Choose a service, pick a time, and pay online or at pickup. Labor prices shown; parts are extra.</p>' +
+    '<div class="cats">' + cats.map((cat, i) => { const list = SERVICES.filter(s => s.cat === cat), from = Math.min(...list.map(s => s.price));
+      return '<details class="cat" name="cats"' + (i === 0 ? ' open' : '') + '><summary><span class="ctitle">' + esc(cat) + '</span><span class="cmeta">' + list.length + (list.length === 1 ? ' service' : ' services') + ' · from ' + money(from) + '</span><span class="chev" aria-hidden="true">▼</span></summary>' +
+        '<ul class="menu">' + list.map(s => '<li><button class="svc" data-book="' + s.id + '"><span><span class="name">' + esc(s.name) + '</span><br><span class="desc">' + esc(s.desc) + '</span></span>' +
+        '<span class="time">about ' + dur(s.dur) + '</span><span class="price">' + money(s.price) + '</span><span class="go">Book ›</span></button></li>').join("") + '</ul></details>'; }).join("") + '</div></div>';
+  app.querySelectorAll("[data-book]").forEach(b => b.onclick = () => { state = { view:"book", svc:SERVICES.find(s => s.id === b.dataset.book), dayIdx:0, slot:null, tip:0, customTip:false }; render(); scrollTo(0,0); });
+}
+
+function renderBook() {
+  const s = state.svc, ds = days(), day = ds[state.dayIdx], slots = slotsFor(day, s);
+  const wd = d => d.toLocaleDateString("en-US",{weekday:"short"});
+  app.innerHTML = '<div class="view"><button class="back" id="back">← All services</button><div class="stars" style="color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase">' + esc(s.cat) + '</div><h1>' + esc(s.name) + '</h1>' +
+    '<div class="summary"><span>' + money(s.price) + '</span><span>about ' + dur(s.dur) + '</span><span>Times in Central time</span></div>' +
+    (account ? '<p class="desc">Booking as ' + esc(account.name) + '. Your saved details are filled in below.</p>' : '<p class="desc"><button type="button" class="back" id="inline-login" style="margin:0">Log in</button> to fill in your saved details.</p>') + '<div class="panel"><span class="label">Day</span><div class="days">' + ds.map((d,i) =>
+      '<button class="day' + (i===state.dayIdx?" on":"") + '" data-day="' + i + '"><small>' + wd(d) + '</small><b>' + d.getDate() + '</b><small>' + d.toLocaleDateString("en-US",{month:"short"}) + '</small></button>').join("") + '</div>' +
+    '<span class="label">Appointment time</span><div class="slots">' + (slots.length ? slots.map(t =>
+      '<button class="slot' + (state.slot===t?" on":"") + '" data-slot="' + t + '">' + fmtTime(t) + '</button>').join("") : '<span class="desc">No open times this day.</span>') + '</div>' +
+    '<form id="f"><div class="grid2"><div><label class="label" for="name">Your name</label><input id="name" required value="' + esc(state.name||(account?account.name:"")) + '"></div>' +
+    '<div><label class="label" for="email">Email</label><input id="email" type="email" required value="' + esc(state.email||(account?account.email:"")) + '"></div></div>' +
+    '<label class="label" for="notes">About your bike (optional)</label><textarea id="notes" rows="2">' + esc(state.notes||(account?account.bike:"")) + '</textarea>' +
+    '<span class="label">How would you like to pay?</span><div class="slots" style="margin-top:0">' +
+      '<button type="button" class="slot' + (state.pay!=="pickup"?" on":"") + '" data-pay="online">Pay online now</button>' +
+      '<button type="button" class="slot' + (state.pay==="pickup"?" on":"") + '" data-pay="pickup">Pay at pickup</button></div>' +
+    (state.pay==="pickup" ? '<span class="label">Add a tip? (paid at pickup)</span>' + tipHTML(s.price) + '<div class="total"><span>Due at pickup</span><span>' + money(s.price + tipOf()) + '</span></div>' : '<p class="desc">You can add a tip on the payment page.</p>') +
+    '<p class="err" id="err" hidden>Pick a time to continue.</p>' +
+    '<div class="row"><button class="btn" type="submit">' + (state.pay==="pickup" ? "Confirm booking" : "Continue to payment") + '</button></div></form></div></div>';
+  document.getElementById("back").onclick = () => { state = { view:"menu" }; render(); };
+  app.querySelectorAll("[data-day]").forEach(b => b.onclick = () => { keepForm(); state.dayIdx = +b.dataset.day; state.slot = null; render(); });
+  app.querySelectorAll("[data-slot]").forEach(b => b.onclick = () => { keepForm(); state.slot = +b.dataset.slot; render(); });
+  app.querySelectorAll("[data-pay]").forEach(b => b.onclick = () => { keepForm(); state.pay = b.dataset.pay; render(); });
+  wireTip(render);
+  const il = document.getElementById("inline-login"); if (il) il.onclick = () => { keepForm(); state.returnTo = "book"; state.prev = { ...state }; state.view = "login"; render(); };
+  document.getElementById("f").onsubmit = e => { e.preventDefault(); if (state.slot == null) { document.getElementById("err").hidden = false; return; } keepForm(); state.view = state.pay === "pickup" ? "status" : "pay"; render(); scrollTo(0,0); };
+}
+function keepForm() { ["name","email","notes"].forEach(k => { const el = document.getElementById(k); if (el) state[k] = el.value; }); }
+const whenText = () => days()[state.dayIdx].toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}) + " at " + fmtTime(state.slot);
+
+function renderPay() {
+  const s = state.svc;
+  app.innerHTML = '<div class="view"><button class="back" id="back">← Change time</button><h1>Payment</h1>' +
+    '<div class="paygrid"><div class="panel"><span class="label" style="margin-top:0">Your booking</span><div class="name">' + esc(s.name) + '</div><div class="desc">' + whenText() + ' CT</div>' +
+    '<div class="total"><span>Service</span><span>' + money(s.price) + '</span></div>' + (tipOf() ? '<div class="total" style="border:0;padding-top:0;margin-top:0"><span>Tip</span><span>' + money(tipOf()) + '</span></div>' : '') + '<div class="total"><span>Total</span><span>' + money(s.price + tipOf()) + '</span></div><div class="desc">Your time is held for 30 minutes while you pay.</div></div>' +
+    '<form class="panel" id="payform"><span class="label" style="margin-top:0">Add a tip?</span>' + tipHTML(s.price) + '<span class="label">Card details</span>' +
+    '<div class="note">Preview only: these are Stripe test numbers and can\'t be changed. On the live site this is Stripe\'s secure card form.</div>' +
+    '<label class="label" for="cc">Card number</label><div class="ccwrap"><input id="cc" value="4242 4242 4242 4242" readonly><span class="brandtag">VISA</span></div>' +
+    '<div class="grid3"><div><label class="label" for="exp">Expiry</label><input id="exp" value="12 / 34" readonly></div>' +
+    '<div><label class="label" for="cvc">CVC</label><input id="cvc" value="123" readonly></div>' +
+    '<div><label class="label" for="zip">ZIP</label><input id="zip" value="78701" readonly></div></div>' +
+    '<div class="row"><button class="btn" id="paybtn" type="submit">Pay ' + money(s.price + tipOf()) + '</button></div>' +
+    '<div class="secure">🔒 Payments processed securely by Stripe</div></form></div></div>';
+  document.getElementById("back").onclick = () => { state.view = "book"; render(); };
+  wireTip(render);
+  document.getElementById("payform").onsubmit = e => { e.preventDefault(); const b = document.getElementById("paybtn"); b.disabled = true; b.textContent = "Processing…"; setTimeout(() => { state.view = "status"; render(); scrollTo(0,0); }, 900); };
+}
+
+function renderStatus() {
+  const s = state.svc, steps = ["Confirmed","In progress","Ready for pickup","Completed"];
+  app.innerHTML = '<div class="view"><h1>Your booking</h1><p class="lede">Bookmark this page. It shows the latest status from the shop, and a calendar invite is on its way to ' + esc(state.email) + '.</p>' +
+    '<div class="panel"><span class="pill">Confirmed</span><h3 style="font-size:24px;margin-top:10px">' + esc(s.name) + '</h3><div class="desc">' + whenText() + ' CT · ' + money(s.price + tipOf()) + (tipOf() ? ' incl. ' + money(tipOf()) + ' tip' : '') + (state.pay === "pickup" ? ' due at pickup' : ' paid') + '</div>' +
+    '<ol class="track">' + steps.map((t,i) => '<li class="' + (i===0?"done":"") + '">' + t + '</li>').join("") + '</ol></div>' +
+    '<h2>Updates from the shop</h2><ul class="log"><li><time>Just now</time>' + (state.pay === "pickup" ? "Your appointment is confirmed. You\'ll pay when you pick up your bike." : "Payment received. Your appointment is confirmed.") + '</li></ul>' +
+    '<div class="panel"><div class="name">How updates work</div><div class="desc">As the shop works on your bike, they set its status (In progress, Ready for pickup, Completed) and can add a note, for example "Rear derailleur hanger was bent, straightened it." Each update appears here.</div></div>' +
+    '<div class="row"><button class="btn ghost" id="again">Back to services</button></div></div>';
+  document.getElementById("again").onclick = () => { state = { view:"menu" }; render(); scrollTo(0,0); };
+}
+
+
+function renderLogin() {
+  app.innerHTML = '<div class="view"><h1>Log in</h1><p class="lede">Save your details and bike info so booking next time takes seconds.</p>' +
+    '<form class="panel" id="lf" style="max-width:420px"><div class="note">Preview only: any email and password work here. Don\'t use your real password.</div>' +
+    '<label class="label" for="lemail">Email</label><input id="lemail" type="email" required value="jordan@example.com">' +
+    '<label class="label" for="lpw">Password</label><input id="lpw" type="password" required value="previewpass">' +
+    '<div class="row"><button class="btn" type="submit">Log in</button><span class="desc">New here? Creating an account works the same way.</span></div></form></div>';
+  document.getElementById("lf").onsubmit = e => { e.preventDefault();
+    account = { name:"Jordan Rivera", email:document.getElementById("lemail").value, bike:"2021 Trek Domane SL6, 56cm, Shimano 105" };
+    if (state.returnTo === "book" && state.prev) { state = { ...state.prev, view:"book", name:"", email:"", notes:"" }; } else { state = { view:"account" }; }
+    syncHeader(); render(); scrollTo(0,0); };
+}
+
+function renderAccount() {
+  const past = [["complete-tune", 62], ["assessment", 140]].map(([id, d]) => ({ s: SERVICES.find(x => x.id === id), d: new Date(Date.now() - d*864e5) }));
+  app.innerHTML = '<div class="view"><div class="row" style="margin-top:0"><h1 style="margin-right:auto">Hi, ' + esc(account.name.split(" ")[0]) + '</h1><button class="btn ghost" id="logout">Log out</button></div>' +
+    '<div class="row"><button class="btn" data-book="complete-tune">Book Complete tune-up again</button></div>' +
+    '<h2>Your bookings</h2><ul class="log">' + past.map(x => '<li><time>' + x.d.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"}) + '</time>' + esc(x.s.name) + ' · ' + money(x.s.price) + ' · Completed</li>').join("") + '</ul>' +
+    '<h2>Saved details</h2><form class="panel" id="pf"><div class="grid2"><div><label class="label" for="pname">Name</label><input id="pname" value="' + esc(account.name) + '"></div>' +
+    '<div><label class="label" for="pemail">Email</label><input id="pemail" value="' + esc(account.email) + '" readonly></div></div>' +
+    '<label class="label" for="pbike">Your bike(s)</label><textarea id="pbike" rows="2">' + esc(account.bike) + '</textarea>' +
+    '<div class="row"><button class="btn" type="submit">Save details</button><span class="desc" id="saved" hidden>Saved.</span></div></form></div>';
+  document.getElementById("logout").onclick = () => { account = null; syncHeader(); state = { view:"menu" }; render(); };
+  document.getElementById("pf").onsubmit = e => { e.preventDefault(); account.name = document.getElementById("pname").value || account.name; account.bike = document.getElementById("pbike").value; document.getElementById("saved").hidden = false; };
+  app.querySelectorAll("[data-book]").forEach(b => b.onclick = () => { state = { view:"book", svc:SERVICES.find(s => s.id === b.dataset.book), dayIdx:0, slot:null, tip:0, customTip:false }; render(); scrollTo(0,0); });
+}
+
+function syncHeader() { document.getElementById("acct-link").textContent = account ? "My account" : "Log in"; }
+document.getElementById("acct-link").onclick = () => { state = { view: account ? "account" : "login" }; render(); scrollTo(0,0); };
+
+document.getElementById("home-link").onclick = e => { e.preventDefault(); state = { view:"menu" }; render(); };
+render();
+</script>

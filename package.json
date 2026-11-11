@@ -1,0 +1,29 @@
+{
+  "name": "bbk-website",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "db:push": "prisma db push",
+    "google:auth": "node scripts/google-auth.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "5.22.0",
+    "@stripe/react-stripe-js": "^2.8.1",
+    "@stripe/stripe-js": "^4.9.0",
+    "@types/node": "20.17.6",
+    "@types/react": "18.3.12",
+    "googleapis": "144.0.0",
+    "next": "14.2.15",
+    "prisma": "5.22.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "stripe": "17.3.1",
+    "typescript": "5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

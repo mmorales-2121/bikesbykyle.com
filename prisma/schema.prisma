@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// SQLite. On Render the file lives on the persistent disk (see render.yaml).
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  phone        String?
+  bikeNotes    String?
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  bookings     Booking[]
+}
+
+model Booking {
+  id              String         @id @default(cuid())
+  customerId      String?
+  customer        Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  // Service price at booking time, so later price changes don't rewrite history.
+  priceCents      Int            @default(0)
+  accessToken     String         @unique
+  serviceId       String
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  notes           String?
+  start           DateTime
+  end             DateTime
+  // PENDING_PAYMENT | CONFIRMED | IN_PROGRESS | READY_FOR_PICKUP | COMPLETED | CANCELLED
+  status          String         @default("PENDING_PAYMENT")
+  // ONLINE (card on the site) or AT_PICKUP
+  paymentMethod   String         @default("ONLINE")
+  paidAt          DateTime?
+  tipCents        Int            @default(0)
+  stripePaymentId String?        @unique
+  googleEventId   String?
+  createdAt       DateTime       @default(now())
+  updates         StatusUpdate[]
+
+  @@index([start])
+}
+
+model StatusUpdate {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  status    String
+  message   String?
+  createdAt DateTime @default(now())
+}
