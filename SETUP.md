@@ -21,7 +21,7 @@ npx prisma db push        # creates the local database
 npm run dev               # open http://localhost:3000
 ```
 
-Owner dashboard: http://localhost:3000/admin (password is `ADMIN_PASSWORD` in `.env`).
+Owner dashboard: http://localhost:3000/admin (log in with `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `.env`).
 
 ## 3. Stripe keys
 
@@ -62,7 +62,7 @@ The repo includes `render.yaml`, which sets up one web service with a 1 GB disk 
 
 1. Push this code to a private GitHub repository.
 2. In Render, choose **New > Blueprint**, pick the repository, and Render reads `render.yaml`.
-3. When asked, fill in `ADMIN_PASSWORD` (your owner dashboard password) and your Stripe keys (`STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`). Leave `STRIPE_WEBHOOK_SECRET` and the Google values blank for now if you don't have them yet.
+3. When asked, fill in `ADMIN_EMAIL` and `ADMIN_PASSWORD` (the first owner login) and your Stripe keys (`STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`). Leave `STRIPE_WEBHOOK_SECRET` and the Google values blank for now if you don't have them yet.
 4. After the first deploy, copy your `onrender.com` address and add the Stripe webhook (step 3 above) pointing at `https://YOUR-ADDRESS.onrender.com/api/stripe/webhook`. Paste its signing secret into `STRIPE_WEBHOOK_SECRET` in Render (**Environment** tab). Render redeploys by itself.
 5. Run `npm run google:auth` once on your computer (step 4 above) and paste the three Google values into Render's **Environment** tab.
 6. Every push to the repository's main branch redeploys the site automatically.
@@ -88,7 +88,11 @@ Back up the disk: it holds every booking and customer account. Render's Starter 
 
 ## Owner dashboard
 
-Log in at `/admin` with `ADMIN_PASSWORD`. Only someone with that password can see these pages.
+Log in at `/admin` with an admin email and password. Only admins can see these pages.
+
+- The first admin is created from `ADMIN_EMAIL` and `ADMIN_PASSWORD` the first time someone logs in, and only while no admin exists. Changing those values later does nothing.
+- **Account** tab: change your password, add more admins, or remove one (you can't remove yourself, so there is always at least one).
+- Locked out? In Render, open the service's **Shell** tab and run `npm run create-admin -- you@example.com 'new-password'` to create an admin or reset its password.
 
 - **Bookings:** upcoming bookings, status updates, Mark paid.
 - **Metrics:** revenue collected (including tips), revenue after estimated Stripe fees, bookings, average ticket, money still due at pickup, a monthly revenue chart for the last 12 months, and the most-booked services. Switch between 30 days, 90 days, 12 months and all time.

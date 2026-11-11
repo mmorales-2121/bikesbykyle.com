@@ -14,7 +14,7 @@ const RANGES = [
 ];
 
 export default async function Metrics({ searchParams }: { searchParams: { range?: string } }) {
-  requireAdmin();
+  await requireAdmin();
   const range = RANGES.find((r) => r.key === searchParams.range) ?? RANGES[0];
   const m = await getMetrics(range.days);
   const maxRev = Math.max(1, ...m.months.map((x) => x.revenue));

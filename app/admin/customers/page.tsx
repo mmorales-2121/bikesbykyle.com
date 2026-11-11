@@ -7,7 +7,7 @@ import { formatInZone } from "@/lib/time";
 export const dynamic = "force-dynamic";
 
 export default async function Customers({ searchParams }: { searchParams: { q?: string } }) {
-  requireAdmin();
+  await requireAdmin();
   const rows = await getCustomerRows(searchParams.q);
   const accounts = rows.filter((r) => r.hasAccount).length;
   const repeat = rows.filter((r) => r.bookings > 1).length;

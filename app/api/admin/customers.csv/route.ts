@@ -5,7 +5,7 @@ import { getCustomerRows } from "@/lib/metrics";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  if (!isAdmin()) return NextResponse.json({ error: "Not allowed" }, { status: 401 });
+  if (!(await isAdmin())) return NextResponse.json({ error: "Not allowed" }, { status: 401 });
   const rows = await getCustomerRows();
   const cell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const csv = [

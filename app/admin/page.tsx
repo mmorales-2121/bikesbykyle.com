@@ -15,7 +15,7 @@ const OWNER_STATUSES = ["CONFIRMED", "IN_PROGRESS", "READY_FOR_PICKUP", "COMPLET
 
 async function postStatus(form: FormData) {
   "use server";
-  requireAdmin();
+  await requireAdmin();
   const bookingId = String(form.get("bookingId"));
   const status = String(form.get("status"));
   const message = String(form.get("message") ?? "").trim() || null;
@@ -31,7 +31,7 @@ async function postStatus(form: FormData) {
 
 async function markPaid(form: FormData) {
   "use server";
-  requireAdmin();
+  await requireAdmin();
   const bookingId = String(form.get("bookingId"));
   const tipCents = Math.min(50000, Math.max(0, Math.round(Number(form.get("tip") || 0) * 100)));
   await db.booking.update({ where: { id: bookingId }, data: { paidAt: new Date(), tipCents } });
@@ -46,7 +46,7 @@ async function logout() {
 }
 
 export default async function Admin({ searchParams }: { searchParams: { show?: string } }) {
-  requireAdmin();
+  await requireAdmin();
   const showPast = searchParams.show === "all";
   const bookings = await db.booking.findMany({
     where: { status: { not: "PENDING_PAYMENT" }, ...(showPast ? {} : { end: { gte: new Date(Date.now() - 86400000) } }) },
