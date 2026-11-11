@@ -12,7 +12,7 @@ Open `config/business.ts` and change:
 
 ## 2. Run it on your computer
 
-Needs Node.js 20 or newer.
+Needs Node.js 22 or newer.
 
 ```bash
 npm install
@@ -108,8 +108,11 @@ Render's paid plans allow outgoing email; the free plan blocks SMTP, which is an
 ## Customer accounts
 
 - Customers can create an account at `/account/signup` (name, email, phone, bike details, password) and log in at `/account/login`.
+- After signing up, the customer gets a "Confirm your email" link (good for 48 hours). The account only works once they click it and press **Confirm my email**. This needs booking emails set up (see above); without email, the link is only written to the server log.
+- Guest bookings made earlier with the same email are linked to the account only after the email is confirmed, so nobody can see someone else's bookings by signing up with their address.
+- Signing up with an email that already has an account shows the same "check your email" page and emails the owner a "you already have an account" note, so the page never reveals who has an account.
+- Logging in with the right password but an unconfirmed email sends a fresh link.
 - Logged-in customers get their details filled in when booking, and their account page (`/account`) lists past bookings with a "Book again" button.
-- Guest bookings made earlier with the same email are linked to the account when it's created.
 - Passwords are stored hashed (scrypt). There's no "forgot password" email yet.
 
 ## Owner dashboard
@@ -123,5 +126,14 @@ Log in at `/admin` with an admin email and password. Only admins can see these p
 - **Bookings:** upcoming bookings, status updates, Mark paid.
 - **Metrics:** revenue collected (including tips), revenue after estimated Stripe fees, bookings, average ticket, money still due at pickup, a monthly revenue chart for the last 12 months, and the most-booked services. Switch between 30 days, 90 days, 12 months and all time.
 - **Customers:** everyone who has booked (account holders and guests): contact info, saved bike details, number of bookings, total spent and last visit. Search, or download as CSV.
+
+## Security settings
+
+- **Login limits:** 5 wrong admin passwords from one connection (or 10 for one admin email) locks owner login for 15 minutes. Customer login allows 10 wrong tries per connection and 5 per email in 15 minutes.
+- **Other limits:** 5 sign-ups per hour per connection, 10 bookings per hour per connection and 5 per email, 30 tip changes per 10 minutes, 120 availability checks per minute. Limits are kept in memory and reset when the site restarts or redeploys.
+- **`SESSION_SECRET`** signs login cookies and email links. Render creates it from `render.yaml`. If it is ever missing, the site uses a random key and logs a `[security]` warning, so logins reset on every restart until you set it.
+- **Browser protections:** pages can't be shown inside other sites' frames, admin, account, checkout and booking pages are kept out of search engines, and HTTPS is enforced.
+- **Customer CSV:** cells that start with `=`, `+`, `-` or `@` get a leading `'` so spreadsheet apps don't run them as formulas.
+- Run `npm audit --omit=dev` after updating packages; it should report 0 vulnerabilities.
 
 "Profit" on the metrics page is revenue minus estimated Stripe fees (2.9% + 30¢ per online payment, set in `lib/metrics.ts`). It doesn't subtract parts or other costs.

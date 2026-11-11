@@ -24,11 +24,12 @@ async function saveProfile(form: FormData) {
 
 async function logout() {
   "use server";
-  endSession();
+  await endSession();
   redirect("/");
 }
 
-export default async function Account({ searchParams }: { searchParams: { saved?: string } }) {
+export default async function Account(props: { searchParams: Promise<{ saved?: string }> }) {
+  const searchParams = await props.searchParams;
   const customer = await getCustomer();
   if (!customer) redirect("/account/login?next=/account");
   const bookings = await db.booking.findMany({ where: { customerId: customer.id, status: { not: "PENDING_PAYMENT" } }, orderBy: { start: "desc" }, take: 50 });

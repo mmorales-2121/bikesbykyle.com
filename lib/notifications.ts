@@ -10,7 +10,7 @@ type Booking = {
 };
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
-const siteUrl = () => (process.env.SITE_URL || process.env.RENDER_EXTERNAL_URL || "http://localhost:3000").replace(/\/$/, "");
+export const siteUrl = () => (process.env.SITE_URL || process.env.RENDER_EXTERNAL_URL || "http://localhost:3000").replace(/\/$/, "");
 const dur = (m: number) => (m < 120 ? `${m} min` : `${Math.round(m / 30) / 2} hours`);
 const gcalDate = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
@@ -21,7 +21,7 @@ function paymentLine(b: Booking) {
 }
 
 /** Shared email frame in the site's colors. Rows are [label, value] pairs. */
-function layout(heading: string, intro: string, rows: [string, string][], button?: { href: string; label: string }, footer = "") {
+export function layout(heading: string, intro: string, rows: [string, string][], button?: { href: string; label: string }, footer = "") {
   const rowHtml = rows.map(([k, v]) =>
     `<tr><td style="padding:8px 0;color:#6b7280;font-size:14px;width:120px;vertical-align:top">${esc(k)}</td><td style="padding:8px 0;font-size:15px;color:#111827">${esc(v).replace(/\n/g, "<br>")}</td></tr>`).join("");
   const html = `<!doctype html><html><body style="margin:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif">

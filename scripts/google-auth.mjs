@@ -2,7 +2,7 @@
 // and it prints the GOOGLE_REFRESH_TOKEN to paste into .env.
 import http from "node:http";
 import { readFileSync } from "node:fs";
-import { google } from "googleapis";
+import { OAuth2Client } from "google-auth-library";
 
 try {
   for (const line of readFileSync(".env", "utf8").split("\n")) {
@@ -17,7 +17,7 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   process.exit(1);
 }
 const redirect = "http://localhost:5555/callback";
-const auth = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, redirect);
+const auth = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, redirect);
 const url = auth.generateAuthUrl({ access_type: "offline", prompt: "consent", scope: ["https://www.googleapis.com/auth/calendar"] });
 
 http.createServer(async (req, res) => {

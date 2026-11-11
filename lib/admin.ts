@@ -1,21 +1,21 @@
-import { createHmac } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "./db";
 import { hashPassword, normalizeEmail } from "./customer";
+import { hmac, safeEqual } from "./secret";
 
 export const ADMIN_COOKIE = "bbk_admin";
-const sign = (id: string) => `${id}.${createHmac("sha256", process.env.SESSION_SECRET || "dev-secret").update(`admin:${id}`).digest("hex")}`;
+const sign = (id: string) => `${id}.${hmac(`admin:${id}`)}`;
 
-export function startAdminSession(adminId: string) {
-  cookies().set(ADMIN_COOKIE, sign(adminId), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 14 });
+export async function startAdminSession(adminId: string) {
+  (await cookies()).set(ADMIN_COOKIE, sign(adminId), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 14 });
 }
 
 /** The logged-in admin, or null. */
 export async function getAdmin() {
-  const value = cookies().get(ADMIN_COOKIE)?.value;
+  const value = (await cookies()).get(ADMIN_COOKIE)?.value;
   const id = value?.split(".")[0];
-  if (!id || value !== sign(id)) return null;
+  if (!id || !safeEqual(value!, sign(id))) return null;
   return db.admin.findUnique({ where: { id } });
 }
 

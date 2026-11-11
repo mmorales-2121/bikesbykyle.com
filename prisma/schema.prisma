@@ -17,14 +17,15 @@ model Admin {
 }
 
 model Customer {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  name         String
-  phone        String?
-  bikeNotes    String?
-  passwordHash String
-  createdAt    DateTime  @default(now())
-  bookings     Booking[]
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  phone           String?
+  bikeNotes       String?
+  passwordHash    String
+  emailVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  bookings        Booking[]
 }
 
 model Booking {

@@ -6,7 +6,8 @@ import { formatInZone } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
 
-export default async function Customers({ searchParams }: { searchParams: { q?: string } }) {
+export default async function Customers(props: { searchParams: Promise<{ q?: string }> }) {
+  const searchParams = await props.searchParams;
   await requireAdmin();
   const rows = await getCustomerRows(searchParams.q);
   const accounts = rows.filter((r) => r.hasAccount).length;

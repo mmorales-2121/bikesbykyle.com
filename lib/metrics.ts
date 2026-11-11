@@ -59,7 +59,7 @@ export async function getMetrics(sinceDays: number | null) {
 /** One row per customer email: account holders plus guests. */
 export async function getCustomerRows(q?: string) {
   const [accounts, bookings] = await Promise.all([
-    db.customer.findMany(),
+    db.customer.findMany({ where: { emailVerifiedAt: { not: null } } }),
     db.booking.findMany({ where: { status: { not: "PENDING_PAYMENT" } }, orderBy: { start: "desc" } }),
   ]);
   const rows = new Map<string, { email: string; name: string; phone: string; bikeNotes: string; hasAccount: boolean; joined: Date | null; bookings: number; spent: number; last: Date | null; lastService: string }>();

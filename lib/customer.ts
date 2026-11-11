@@ -1,9 +1,9 @@
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "crypto";
+import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { db } from "./db";
+import { hmac, safeEqual } from "./secret";
 
 export const CUSTOMER_COOKIE = "bbk_customer";
-const secret = () => process.env.SESSION_SECRET || "dev-secret";
 
 export function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
@@ -17,22 +17,24 @@ export function verifyPassword(password: string, stored: string) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-const sign = (id: string) => `${id}.${createHmac("sha256", secret()).update(`customer:${id}`).digest("hex")}`;
+const sign = (id: string) => `${id}.${hmac(`customer:${id}`)}`;
 
-export function startSession(customerId: string) {
-  cookies().set(CUSTOMER_COOKIE, sign(customerId), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 90 });
+export async function startSession(customerId: string) {
+  (await cookies()).set(CUSTOMER_COOKIE, sign(customerId), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 90 });
 }
 
-export function endSession() {
-  cookies().delete(CUSTOMER_COOKIE);
+export async function endSession() {
+  (await cookies()).delete(CUSTOMER_COOKIE);
 }
 
 /** The logged-in customer, or null. */
 export async function getCustomer() {
-  const value = cookies().get(CUSTOMER_COOKIE)?.value;
+  const value = (await cookies()).get(CUSTOMER_COOKIE)?.value;
   const id = value?.split(".")[0];
-  if (!id || value !== sign(id)) return null;
-  return db.customer.findUnique({ where: { id } });
+  if (!id || !safeEqual(value!, sign(id))) return null;
+  const customer = await db.customer.findUnique({ where: { id } });
+  // Accounts only work once the email address is confirmed.
+  return customer?.emailVerifiedAt ? customer : null;
 }
 
 export const normalizeEmail = (e: string) => e.trim().toLowerCase();

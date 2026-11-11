@@ -13,7 +13,8 @@ const RANGES = [
   { key: "all", label: "All time", days: null },
 ];
 
-export default async function Metrics({ searchParams }: { searchParams: { range?: string } }) {
+export default async function Metrics(props: { searchParams: Promise<{ range?: string }> }) {
+  const searchParams = await props.searchParams;
   await requireAdmin();
   const range = RANGES.find((r) => r.key === searchParams.range) ?? RANGES[0];
   const m = await getMetrics(range.days);

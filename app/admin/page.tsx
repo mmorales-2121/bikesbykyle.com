@@ -43,11 +43,12 @@ async function markPaid(form: FormData) {
 
 async function logout() {
   "use server";
-  cookies().delete(ADMIN_COOKIE);
+  (await cookies()).delete(ADMIN_COOKIE);
   redirect("/admin/login");
 }
 
-export default async function Admin({ searchParams }: { searchParams: { show?: string } }) {
+export default async function Admin(props: { searchParams: Promise<{ show?: string }> }) {
+  const searchParams = await props.searchParams;
   await requireAdmin();
   const showPast = searchParams.show === "all";
   const bookings = await db.booking.findMany({

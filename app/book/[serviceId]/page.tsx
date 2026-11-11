@@ -7,7 +7,8 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 import BookingForm from "./BookingForm";
 
-export default async function BookPage({ params }: { params: { serviceId: string } }) {
+export default async function BookPage(props: { params: Promise<{ serviceId: string }> }) {
+  const params = await props.params;
   const service = getService(params.serviceId);
   if (!service) notFound();
   const customer = await getCustomer();

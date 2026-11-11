@@ -1,12 +1,13 @@
-import { google } from "googleapis";
+import { calendar as gcal } from "@googleapis/calendar";
+import { OAuth2Client } from "google-auth-library";
 
 export const calendarEnabled = () =>
   Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN);
 
 function calendar() {
-  const auth = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
+  const auth = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
   auth.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
-  return google.calendar({ version: "v3", auth });
+  return gcal({ version: "v3", auth });
 }
 const calendarId = () => process.env.GOOGLE_CALENDAR_ID || "primary";
 

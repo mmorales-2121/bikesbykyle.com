@@ -41,7 +41,8 @@ async function removeAdmin(form: FormData) {
 const PW: Record<string, [string, string]> = { ok: ["ok", "Password changed."], wrong: ["error", "Your current password isn't right."], short: ["error", "Use a new password of at least 10 characters."] };
 const ADD: Record<string, [string, string]> = { ok: ["ok", "Admin added. Send them their password privately."], invalid: ["error", "Enter a valid email and a password of at least 10 characters."], taken: ["error", "That email is already an admin."] };
 
-export default async function AdminAccount({ searchParams }: { searchParams: { pw?: string; add?: string } }) {
+export default async function AdminAccount(props: { searchParams: Promise<{ pw?: string; add?: string }> }) {
+  const searchParams = await props.searchParams;
   const me = await requireAdmin();
   const admins = await db.admin.findMany({ orderBy: { createdAt: "asc" } });
   const pw = searchParams.pw && PW[searchParams.pw], add = searchParams.add && ADD[searchParams.add];

@@ -7,7 +7,9 @@ import { formatWhen } from "@/lib/time";
 export const dynamic = "force-dynamic";
 
 // Private page per booking. The link (with its secret token) is the customer's access.
-export default async function BookingStatus({ params, searchParams }: { params: { id: string }; searchParams: { t?: string } }) {
+export default async function BookingStatus(props: { params: Promise<{ id: string }>; searchParams: Promise<{ t?: string }> }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const booking = await db.booking.findUnique({ where: { id: params.id }, include: { updates: { orderBy: { createdAt: "desc" } } } });
   if (!booking || !searchParams.t || booking.accessToken !== searchParams.t) notFound();
   const service = getService(booking.serviceId);

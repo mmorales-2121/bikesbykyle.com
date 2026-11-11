@@ -6,7 +6,8 @@ import { stripe } from "@/lib/stripe";
 export const dynamic = "force-dynamic";
 
 // Stripe returns customers here after the payment page. We double-check payment, then show their booking page.
-export default async function Success({ searchParams }: { searchParams: { payment_intent?: string } }) {
+export default async function Success(props: { searchParams: Promise<{ payment_intent?: string }> }) {
+  const searchParams = await props.searchParams;
   const id = searchParams.payment_intent;
   if (!id) redirect("/");
   const intent = await stripe().paymentIntents.retrieve(id);

@@ -9,7 +9,9 @@ import PaymentForm from "./PaymentForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function Checkout({ params, searchParams }: { params: { id: string }; searchParams: { t?: string } }) {
+export default async function Checkout(props: { params: Promise<{ id: string }>; searchParams: Promise<{ t?: string }> }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const booking = await db.booking.findUnique({ where: { id: params.id } });
   if (!booking || booking.accessToken !== searchParams.t || !booking.stripePaymentId) notFound();
   const service = getService(booking.serviceId);
