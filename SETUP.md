@@ -139,6 +139,14 @@ Log in at `/admin` with an admin email and password. Only admins can see these p
 - **Metrics:** revenue collected (including tips), revenue after estimated Stripe fees, bookings, average ticket, money still due at pickup, a monthly revenue chart for the last 12 months, and the most-booked services. Switch between 30 days, 90 days, 12 months and all time.
 - **Customers:** everyone who has booked (account holders and guests): contact info, saved bike details, number of bookings, total spent and last visit. Search, or download as CSV.
 
+## Promo codes
+
+Owner dashboard > **Promo codes** creates discount codes. Each code is either a percent off (1 to 100%) or a dollar amount off, and can have a last day it works, a total number of uses, and a one-use-per-customer-email limit. Pause a code to stop it right away; codes that were never used can be deleted.
+
+Customers type the code on the booking form, for both **Pay online now** and **Pay at pickup**, and see the new total before booking. The discount comes off the service price, not the tip (tip suggestions stay based on the full price). The code is checked again when the booking is made, the card is charged the discounted amount, and the code and saving appear on the booking page, confirmation emails, the Bookings tab and Metrics (**Promo discounts**). If a code makes a service free, there's nothing to charge online, so the booking is confirmed right away and any tip is paid at pickup. Card payments under $0.50 aren't possible, so the customer is asked to choose pay at pickup in that case.
+
+A cancelled booking, or an unpaid online booking whose 30-minute hold ran out, doesn't count as a use. Customers can try 20 codes per 10 minutes, which stops code guessing.
+
 ## Time off
 
 Owner dashboard > **Time off** shows a month calendar. Tap a day to mark yourself away; tap it again to reopen it. Use **Block several days** for a trip, with an optional note only admins see. Customers can't book away days (the booking page says the shop is closed that day). Bookings already made on a day you mark away stay booked; the page lists them so you can contact those customers or cancel from the Bookings tab.

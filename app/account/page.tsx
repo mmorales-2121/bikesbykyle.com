@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { totalOf } from "@/lib/total";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { business, formatPrice, getService } from "@/config/business";
@@ -49,7 +50,7 @@ export default async function Account(props: { searchParams: Promise<{ saved?: s
               <tr key={b.id}>
                 <td>{formatWhen(b.start, business.timeZone)}</td>
                 <td>{getService(b.serviceId)?.name ?? b.serviceId}</td>
-                <td>{formatPrice(b.priceCents + b.tipCents)}</td>
+                <td>{formatPrice(totalOf(b))}{b.discountCents > 0 && <div className="muted" style={{ fontSize: 13 }}>{b.promoCode} saved {formatPrice(b.discountCents)}</div>}</td>
                 <td><Link href={`/booking/${b.id}?t=${b.accessToken}`}>{STATUS_LABELS[b.status] ?? b.status}</Link></td>
               </tr>
             ))}

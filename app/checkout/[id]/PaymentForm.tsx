@@ -5,10 +5,11 @@ import { useMemo, useState } from "react";
 import TipPicker from "@/components/TipPicker";
 
 const fmt = (c: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(c / 100);
-type TipProps = { bookingId: string; token: string; priceCents: number; initialTipCents: number };
+// subtotalCents is the service price after any promo; tip suggestions use the full price (tipBaseCents).
+type TipProps = { bookingId: string; token: string; subtotalCents: number; tipBaseCents: number; initialTipCents: number };
 
 // Card fields are Stripe's own secure fields: card numbers go straight to Stripe and never touch our server.
-function Inner({ returnUrl, bookingId, token, priceCents, initialTipCents }: { returnUrl: string } & TipProps) {
+function Inner({ returnUrl, bookingId, token, subtotalCents, tipBaseCents, initialTipCents }: { returnUrl: string } & TipProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [busy, setBusy] = useState(false);
@@ -37,13 +38,13 @@ function Inner({ returnUrl, bookingId, token, priceCents, initialTipCents }: { r
   return (
     <form onSubmit={pay} className="card" style={{ marginTop: 16 }}>
       <label style={{ marginTop: 0 }}>Add a tip?</label>
-      <TipPicker priceCents={priceCents} value={tip} onChange={changeTip} disabled={busy} />
+      <TipPicker priceCents={tipBaseCents} value={tip} onChange={changeTip} disabled={busy} />
       <p style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--line)", paddingTop: 10 }}>
-        <strong>Total</strong><strong className="price">{fmt(priceCents + tip)}</strong>
+        <strong>Total</strong><strong className="price">{fmt(subtotalCents + tip)}</strong>
       </p>
       <PaymentElement />
       {error && <p className="error">{error}</p>}
-      <p><button className="btn" disabled={!stripe || busy || updating}>{busy ? "Processing…" : updating ? "Updating total…" : `Pay ${fmt(priceCents + tip)}`}</button></p>
+      <p><button className="btn" disabled={!stripe || busy || updating}>{busy ? "Processing…" : updating ? "Updating total…" : `Pay ${fmt(subtotalCents + tip)}`}</button></p>
       <p className="muted" style={{ fontSize: 13 }}>Payments are processed securely by Stripe.</p>
     </form>
   );

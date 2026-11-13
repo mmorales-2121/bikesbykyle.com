@@ -35,6 +35,7 @@ export default async function Metrics(props: { searchParams: Promise<{ range?: s
         <div className="kpi"><span>Bookings</span><b>{m.bookings}</b><small>{m.cancelled} cancelled</small></div>
         <div className="kpi"><span>Average ticket</span><b>{formatPrice(m.avgTicket)}</b><small>{Math.round(m.onlineShare * 100)}% paid online</small></div>
         <div className="kpi"><span>Due at pickup</span><b>{formatPrice(m.unpaid)}</b><small>not collected yet</small></div>
+        <div className="kpi"><span>Promo discounts</span><b>{formatPrice(m.discounts)}</b><small>{m.promoBookings} booking{m.promoBookings === 1 ? "" : "s"} used a code</small></div>
       </div>
       <p className="muted" style={{ fontSize: 13 }}>
         Profit here is revenue minus estimated Stripe fees ({(STRIPE_PERCENT * 100).toFixed(1)}% + {STRIPE_FIXED_CENTS}¢ per online payment). It doesn't subtract parts or other costs.

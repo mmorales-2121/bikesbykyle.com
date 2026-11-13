@@ -5,8 +5,10 @@ import { db } from "./db";
 export const STRIPE_PERCENT = 0.029;
 export const STRIPE_FIXED_CENTS = 30;
 
-type B = { priceCents: number; tipCents: number; paymentMethod: string; paidAt: Date | null };
-export const totalOf = (b: B) => b.priceCents + b.tipCents;
+import { totalOf } from "./total";
+export { totalOf };
+
+type B = { priceCents: number; discountCents: number; tipCents: number; paymentMethod: string; paidAt: Date | null };
 export const feeOf = (b: B) => (b.paidAt && b.paymentMethod === "ONLINE" ? Math.round(totalOf(b) * STRIPE_PERCENT) + STRIPE_FIXED_CENTS : 0);
 
 const monthKey = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: business.timeZone, year: "numeric", month: "2-digit" }).format(d).slice(0, 7);
@@ -19,6 +21,8 @@ export async function getMetrics(sinceDays: number | null) {
 
   const revenue = paid.reduce((s, b) => s + totalOf(b), 0);
   const tips = paid.reduce((s, b) => s + b.tipCents, 0);
+  const discounts = live.reduce((s, b) => s + b.discountCents, 0);
+  const promoBookings = live.filter((b) => b.discountCents > 0).length;
   const fees = paid.reduce((s, b) => s + feeOf(b), 0);
   const unpaid = live.filter((b) => !b.paidAt).reduce((s, b) => s + totalOf(b), 0);
 
@@ -48,7 +52,7 @@ export async function getMetrics(sinceDays: number | null) {
 
   const online = live.filter((b) => b.paymentMethod === "ONLINE").length;
   return {
-    revenue, tips, fees, net: revenue - fees, unpaid,
+    revenue, tips, fees, net: revenue - fees, unpaid, discounts, promoBookings,
     bookings: live.length, cancelled: all.length - live.length,
     avgTicket: paid.length ? Math.round(revenue / paid.length) : 0,
     onlineShare: live.length ? online / live.length : 0,

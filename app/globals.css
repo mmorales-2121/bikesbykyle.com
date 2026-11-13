@@ -90,3 +90,10 @@ td, th { font-variant-numeric:tabular-nums; }
   .calday { min-height:52px; padding:4px 5px; }
   .calday .tag, .calday .cnt { font-size:9px; letter-spacing:0; }
 }
+/* Booking price summary */
+.summary { border-top:1px solid var(--line); margin-top:16px; padding-top:8px; }
+.summary p { display:flex; justify-content:space-between; gap:12px; margin:4px 0; }
+.summary .total { border-top:1px solid var(--line); padding-top:8px; margin-top:8px; }
+.linkish { background:none; border:0; padding:0; color:#ff8a84; text-decoration:underline; font:inherit; cursor:pointer; }
+.chip-status { display:inline-block; white-space:nowrap; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+.chip-status.on { background:#14532d; color:#bbf7d0; } .chip-status.off { background:var(--line); color:var(--muted); }

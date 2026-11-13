@@ -48,6 +48,11 @@ model Booking {
   paymentMethod   String         @default("ONLINE")
   paidAt          DateTime?
   tipCents        Int            @default(0)
+  // Promo code used at booking: the code text and amount are copied so history stays right if the code changes.
+  promoCodeId     String?
+  promo           PromoCode?     @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+  promoCode       String?
+  discountCents   Int            @default(0)
   stripePaymentId String?        @unique
   googleEventId   String?
   createdAt       DateTime       @default(now())
@@ -84,4 +89,22 @@ model TimeOff {
   date      String   @unique
   note      String?
   createdAt DateTime @default(now())
+}
+
+// Discount codes the owner creates. kind PERCENT (value = percent off) or AMOUNT (value = cents off).
+model PromoCode {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  kind           String
+  value          Int
+  note           String?
+  active         Boolean   @default(true)
+  // Last day the code works (YYYY-MM-DD, shop time zone). Empty = no end date.
+  expiresOn      String?
+  // Most bookings the code can be used on in total. Empty = unlimited.
+  maxUses        Int?
+  onePerCustomer Boolean   @default(false)
+  createdBy      String?
+  createdAt      DateTime  @default(now())
+  bookings       Booking[]
 }

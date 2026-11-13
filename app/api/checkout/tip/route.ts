@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getService } from "@/config/business";
 import { MAX_TIP_CENTS } from "@/lib/tip";
 import { db } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
+import { subtotalOf } from "@/lib/total";
 import { clientIp, MINUTE, take } from "@/lib/ratelimit";
 import { safeEqual } from "@/lib/secret";
 
@@ -15,8 +15,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "This booking can't be changed." }, { status: 400 });
   }
   const tipCents = Math.min(MAX_TIP_CENTS, Math.max(0, Math.round(Number(body.tipCents) || 0)));
-  const price = booking.priceCents || getService(booking.serviceId)?.priceCents || 0;
-  await stripe().paymentIntents.update(booking.stripePaymentId, { amount: price + tipCents, metadata: { bookingId: booking.id, tipCents: String(tipCents) } });
+  const subtotal = subtotalOf(booking);
+  await stripe().paymentIntents.update(booking.stripePaymentId, { amount: subtotal + tipCents, metadata: { bookingId: booking.id, tipCents: String(tipCents) } });
   await db.booking.update({ where: { id: booking.id }, data: { tipCents } });
-  return NextResponse.json({ totalCents: price + tipCents });
+  return NextResponse.json({ totalCents: subtotal + tipCents });
 }

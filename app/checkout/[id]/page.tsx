@@ -4,6 +4,7 @@ import { business, formatPrice, getService } from "@/config/business";
 import { HOLD_MINUTES } from "@/lib/availability";
 import { db } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
+import { subtotalOf } from "@/lib/total";
 import { formatWhen } from "@/lib/time";
 import PaymentForm from "./PaymentForm";
 
@@ -34,7 +35,8 @@ export default async function Checkout(props: { params: Promise<{ id: string }>;
       <div className="card" style={{ marginTop: 16 }}>
         <strong>{service?.name ?? booking.serviceId}</strong>
         <p className="muted" style={{ margin: "4px 0" }}>{formatWhen(booking.start, business.timeZone)}</p>
-        <p style={{ margin: 0 }}>Service: {formatPrice(service?.priceCents ?? intent.amount)}</p>
+        <p style={{ margin: 0 }}>Service: {formatPrice(booking.priceCents)}</p>
+        {booking.discountCents > 0 && <p style={{ margin: 0 }} className="ok">Promo {booking.promoCode}: −{formatPrice(booking.discountCents)}</p>}
         <p className="muted" style={{ fontSize: 14 }}>Your time is held for {Math.ceil(minutesLeft)} more minutes.</p>
       </div>
       <PaymentForm
@@ -43,7 +45,8 @@ export default async function Checkout(props: { params: Promise<{ id: string }>;
         returnUrl={`${(process.env.SITE_URL || process.env.RENDER_EXTERNAL_URL) ?? ""}/booking/success`}
         bookingId={booking.id}
         token={booking.accessToken}
-        priceCents={service?.priceCents ?? intent.amount}
+        subtotalCents={subtotalOf(booking)}
+        tipBaseCents={booking.priceCents}
         initialTipCents={booking.tipCents}
       />
     </>

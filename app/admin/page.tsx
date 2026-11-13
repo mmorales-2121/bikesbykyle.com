@@ -10,6 +10,7 @@ import { db } from "@/lib/db";
 import { deleteEvent } from "@/lib/google";
 import { sendStatusUpdateEmail } from "@/lib/notifications";
 import { emailSetup } from "@/lib/email";
+import { totalOf } from "@/lib/total";
 import { formatWhen } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
@@ -83,13 +84,13 @@ export default async function Admin(props: { searchParams: Promise<{ show?: stri
           <div className="card" key={b.id}>
             <div className="row">
               <strong style={{ marginRight: "auto", minWidth: 0 }}>{getService(b.serviceId)?.name ?? b.serviceId} · {formatWhen(b.start, business.timeZone)}</strong>
-              <span className="badge">{b.paidAt ? "Paid" : b.paymentMethod === "AT_PICKUP" ? `Due at pickup: ${formatPrice(b.priceCents + b.tipCents)}` : "Unpaid"}</span>
+              <span className="badge">{b.paidAt ? "Paid" : b.paymentMethod === "AT_PICKUP" ? `Due at pickup: ${formatPrice(totalOf(b))}` : "Unpaid"}</span>
               <span className="badge">{STATUS_LABELS[b.status] ?? b.status}</span>
             </div>
             <p className="muted" style={{ margin: "4px 0" }}>
               {b.customerName} · <a href={`mailto:${b.customerEmail}`}>{b.customerEmail}</a>{b.customerPhone && ` · ${b.customerPhone}`}
             </p>
-            <p style={{ margin: "4px 0" }}>{formatPrice(b.priceCents)} service{b.tipCents > 0 && ` + ${formatPrice(b.tipCents)} tip${b.paidAt ? "" : " (planned)"}`}</p>
+            <p style={{ margin: "4px 0" }}>{formatPrice(b.priceCents)} service{b.discountCents > 0 && ` − ${formatPrice(b.discountCents)} promo (${b.promoCode})`}{b.tipCents > 0 && ` + ${formatPrice(b.tipCents)} tip${b.paidAt ? "" : " (planned)"}`}</p>
             {b.notes && <p style={{ margin: "4px 0", whiteSpace: "pre-wrap" }}>“{b.notes}”</p>}
             <p style={{ margin: "4px 0", fontSize: 14 }}>Customer status page: <a href={`${site}/booking/${b.id}?t=${b.accessToken}`}>{`/booking/${b.id}`}</a></p>
             {!b.paidAt && b.status !== "CANCELLED" && (

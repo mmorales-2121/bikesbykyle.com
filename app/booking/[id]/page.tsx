@@ -1,3 +1,4 @@
+import { totalOf } from "@/lib/total";
 import { notFound } from "next/navigation";
 import { business, formatPrice, getService } from "@/config/business";
 import { STATUS_LABELS } from "@/lib/booking";
@@ -21,7 +22,7 @@ export default async function BookingStatus(props: { params: Promise<{ id: strin
         <p style={{ margin: 0 }}><span className="badge">{STATUS_LABELS[booking.status] ?? booking.status}</span></p>
         <h3 style={{ marginTop: 12 }}>{service?.name ?? booking.serviceId}</h3>
         <p style={{ margin: 0 }}>{formatWhen(booking.start, business.timeZone)}</p>
-        {service && <p className="muted" style={{ margin: 0 }}>{formatPrice(booking.priceCents + booking.tipCents)}{booking.tipCents > 0 && ` (incl. ${formatPrice(booking.tipCents)} tip)`} · {booking.paidAt ? "Paid" : booking.paymentMethod === "AT_PICKUP" ? "Pay at pickup" : "Not paid yet"}</p>}
+        {service && <p className="muted" style={{ margin: 0 }}>{formatPrice(totalOf(booking))}{booking.tipCents > 0 && ` (incl. ${formatPrice(booking.tipCents)} tip)`}{booking.discountCents > 0 && ` · ${booking.promoCode ?? "Promo"} saved ${formatPrice(booking.discountCents)}`} · {booking.paidAt ? "Paid" : booking.paymentMethod === "AT_PICKUP" ? "Pay at pickup" : "Not paid yet"}</p>}
       </div>
       <h2>Updates</h2>
       {booking.updates.length === 0 ? <p className="muted">No updates yet.</p> : (

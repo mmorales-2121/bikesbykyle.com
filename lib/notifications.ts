@@ -3,10 +3,12 @@ import { db } from "./db";
 import { sendEmail } from "./email";
 import { formatWhen } from "./time";
 import { STATUS_LABELS } from "./status";
+import { totalOf } from "./total";
 
 type Booking = {
   id: string; accessToken: string; serviceId: string; customerName: string; customerEmail: string; customerPhone: string | null;
   notes: string | null; start: Date; end: Date; priceCents: number; tipCents: number; paymentMethod: string; paidAt: Date | null;
+  promoCode: string | null; discountCents: number;
 };
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
@@ -15,7 +17,7 @@ const dur = (m: number) => (m < 120 ? `${m} min` : `${Math.round(m / 30) / 2} ho
 const gcalDate = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
 function paymentLine(b: Booking) {
-  const total = formatPrice(b.priceCents + b.tipCents);
+  const total = formatPrice(totalOf(b));
   const tip = b.tipCents ? ` (includes ${formatPrice(b.tipCents)} tip)` : "";
   return b.paidAt ? `Paid online: ${total}${tip}` : `Due at pickup: ${total}${tip}`;
 }
@@ -49,7 +51,7 @@ export function customerConfirmationEmail(b: Booking) {
   const { html, text } = layout(
     "Your appointment is confirmed",
     `Thanks, ${b.customerName.split(" ")[0]}! Here are your booking details. Use the button below to check your bike's status anytime.`,
-    [["Service", service?.name ?? b.serviceId], ["When", when], ["Payment", paymentLine(b)], ...(b.notes ? [["Your notes", b.notes] as [string, string]] : [])],
+    [["Service", service?.name ?? b.serviceId], ["When", when], ["Payment", paymentLine(b)], ...(b.discountCents > 0 ? [["Promo code", `${b.promoCode ?? "Discount"}: -${formatPrice(b.discountCents)}`] as [string, string]] : []), ...(b.notes ? [["Your notes", b.notes] as [string, string]] : [])],
     { href: statusUrl, label: "View your booking" },
     `<a href="${esc(gcal)}" style="color:#e0312b">Add to Google Calendar</a><br>Need to change something? Just reply to this email.`,
   );
@@ -69,6 +71,7 @@ export function adminNewBookingEmail(b: Booking, to: string[]) {
       ["Email", b.customerEmail],
       ...(b.customerPhone ? [["Phone", b.customerPhone] as [string, string]] : []),
       ["Payment", paymentLine(b)],
+      ...(b.discountCents > 0 ? [["Promo code", `${b.promoCode ?? "Discount"}: -${formatPrice(b.discountCents)}`] as [string, string]] : []),
       ...(b.notes ? [["Notes", b.notes] as [string, string]] : []),
     ],
     { href: `${siteUrl()}/admin`, label: "Open the dashboard" },
